@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.dnasoftware.smartdnsproxy.R;
 import com.dnasoftware.smartdnsproxy.Utils.IPUtils;
 
 
@@ -78,22 +79,22 @@ public class WifiStatusChangeReceiver extends BroadcastReceiver{
         intentNoUpdate.setAction("NO");
         PendingIntent pIntentNoUpdate = PendingIntent.getBroadcast(context, 0, intentNoUpdate, 0);
 
-        String message = "It has been detected that you may want to update your Smart DNS Proxy IP. Should we update it now?";
+        String message = context.getString(R.string.update_required_message);
 
         Notification notification;
         notification = new NotificationCompat.Builder(context)
                 .setContentIntent(pIntentUpdate)
                 .setAutoCancel(true)
-                .setContentTitle("Smart DNS IP Update")
+                .setContentTitle(context.getString(R.string.update_request_notification_title))
                 .setContentText(message)
-                .setSubText("Your current IP: " + currentIP)
+                .setSubText(context.getString(R.string.update_request_notification_footer) + currentIP)
                 .setTicker(message)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setLights(Color.WHITE, 1, 0)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                .addAction(android.R.drawable.ic_popup_sync, "Update", pIntentUpdate)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "No", pIntentNoUpdate)
+                .addAction(android.R.drawable.ic_popup_sync, context.getString(R.string.update_request_notification_button_yes), pIntentUpdate)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.update_request_notification_button_no), pIntentNoUpdate)
                 .build();
 
         notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;

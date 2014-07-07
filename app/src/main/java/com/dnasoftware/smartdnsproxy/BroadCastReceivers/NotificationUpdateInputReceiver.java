@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 
+import com.dnasoftware.smartdnsproxy.R;
+
 import retrofit.RestAdapter;
 
 /**
@@ -81,8 +83,8 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
 
         Notification notification;
         notification = new NotificationCompat.Builder(context)
-                .setContentTitle("Smart DNS IP Update")
-                .setContentText("Updating... Please, wait")
+                .setContentTitle(context.getString(R.string.updating_notification_title))
+                .setContentText(context.getString(R.string.updating_notification_body))
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentIntent(pIntent)
                 .setProgress(0, 0, true)
@@ -107,7 +109,7 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
         NotificationCompat.Builder notification;
         notification = new NotificationCompat.Builder(context)
                 .setAutoCancel(true)
-                .setContentTitle("IP Update Result")
+                .setContentTitle(context.getString(R.string.result_notification_title))
                 .setContentText(message)
                 .setTicker(message)
                 .setProgress(0, 0, false)
