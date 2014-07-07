@@ -24,19 +24,19 @@ import retrofit.RestAdapter;
 public class NotificationUpdateInputReceiver extends BroadcastReceiver {
     private static final String API_URL = "http://www.smartdnsproxy.com/api/IP/update";
     private static final String ACCOUNT_ID = "14053957f2c54cd";
+    private String currentIP;
 
     private Handler handler;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String currentIP = intent.getAction();
-        if(currentIP.equals("NO")){ return; }
+        currentIP = intent.getAction();
+        if(currentIP.equals("NO")){ cancelUpdateNotification(context); return; }
 
         handler = new Handler();
 
         updateIP(context, currentIP);
     }
-
 
     protected void updateIP(final Context context, final String IP){
         Thread thread = new Thread(new Runnable() {
@@ -121,10 +121,22 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
         if(Status == 0){
             notification.setSmallIcon(android.R.drawable.ic_dialog_info);
         } else {
+            Intent retryIntent = new Intent("com.dnsoftware.smartdnsproxy.RETRY_UPDATE");
+            retryIntent.setClass(context, NotificationUpdateInputReceiver.class);
+            retryIntent.setAction(currentIP);
+            PendingIntent pIntentRetry = PendingIntent.getBroadcast(context, 0, retryIntent, 0);
+
             notification.setSmallIcon(android.R.drawable.ic_dialog_alert);
+            notification.addAction(android.R.drawable.ic_popup_sync, "Retry", pIntentRetry);
         }
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(91345636, notification.build());
+    }
+
+    private void cancelUpdateNotification(Context ctx){
+        String  s = Context.NOTIFICATION_SERVICE;
+        NotificationManager mNM = (NotificationManager) ctx.getSystemService(s);
+        mNM.cancel(91345636);
     }
 }
