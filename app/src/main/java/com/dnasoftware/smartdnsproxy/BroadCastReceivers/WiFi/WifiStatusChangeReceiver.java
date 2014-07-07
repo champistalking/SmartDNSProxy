@@ -1,4 +1,4 @@
-package com.dnasoftware.smartdnsproxy.BroadCastReceivers;
+package com.dnasoftware.smartdnsproxy.BroadCastReceivers.WiFi;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -8,14 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.dnasoftware.smartdnsproxy.BroadCastReceivers.Notifications.NotificationUpdateInputReceiver;
 import com.dnasoftware.smartdnsproxy.R;
 import com.dnasoftware.smartdnsproxy.Utils.IPUtils;
+import com.dnasoftware.smartdnsproxy.Utils.NetworkUtils;
 
 
 /**
@@ -34,14 +34,9 @@ public class WifiStatusChangeReceiver extends BroadcastReceiver{
         final Context ctx = context;
         cancelUpdateNotification(context); //Cancel any previous notification
 
-        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        boolean isWiFi = NetworkUtils.isWiFiConnected(context);
 
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        if(info == null){ return; }
-
-        boolean isWiFi = info.getType() == ConnectivityManager.TYPE_WIFI;
-
-        if(info.isConnected() && isWiFi){
+        if(isWiFi){
             handler = new Handler();
 
             Thread th = new Thread(new Runnable() {

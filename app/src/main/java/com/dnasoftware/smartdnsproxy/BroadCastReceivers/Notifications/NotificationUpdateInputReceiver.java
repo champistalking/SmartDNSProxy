@@ -1,4 +1,4 @@
-package com.dnasoftware.smartdnsproxy.BroadCastReceivers;
+package com.dnasoftware.smartdnsproxy.BroadCastReceivers.Notifications;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 
+import com.dnasoftware.smartdnsproxy.BroadCastReceivers.WiFi.SmartDNSProxy;
+import com.dnasoftware.smartdnsproxy.BroadCastReceivers.WiFi.SmartDNSProxyAPIModel;
 import com.dnasoftware.smartdnsproxy.R;
 
 import retrofit.RestAdapter;
@@ -55,7 +57,7 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
                         .build();
 
                 SmartDNSProxy dsp = adapter.create(SmartDNSProxy.class);
-                final SmartDNSProxyAPIResponse response = dsp.Update(ACCOUNT_ID);
+                final SmartDNSProxyAPIModel response = dsp.Update(ACCOUNT_ID);
 
                 if(response.getStatus() == 0){
                     final SharedPreferences pref = context.getSharedPreferences("DNSSmartProxy", Context.MODE_PRIVATE);

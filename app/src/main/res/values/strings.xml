@@ -17,4 +17,6 @@
     <string name="updating_notification_body">Updating your IP... Please, wait</string>
 
     <string name="result_notification_title">IP Update Result</string>
+
+    <string name="error_no_wifi_manual_update">This application only runs when you are connected to a WiFi network</string>
 </resources>
