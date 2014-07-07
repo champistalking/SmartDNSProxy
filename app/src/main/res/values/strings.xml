@@ -14,7 +14,7 @@
     <string name="update_request_notification_button_no">No</string>
 
     <string name="updating_notification_title">Smart DNS IP Update</string>
-    <string name="updating_notification_body">Updating... Please, wait</string>
+    <string name="updating_notification_body">Updating your IP... Please, wait</string>
 
     <string name="result_notification_title">IP Update Result</string>
 </resources>

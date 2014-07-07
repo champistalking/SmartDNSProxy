@@ -51,7 +51,7 @@ public class WifiStatusChangeReceiver extends BroadcastReceiver{
                     currentIP = IPUtils.getCurrentIP();
 
                     if(!prevIP.equals("0")){
-                        if(!prevIP.equals(currentIP)){
+                        if(prevIP.equals(currentIP)){
                             Log.e("com.dnasoftware.smartdnsproxy", "Previous IP (" + prevIP + ") and Current IP match, will not update since it's not required");
                             return;
                         }

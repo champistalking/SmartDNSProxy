@@ -28,7 +28,6 @@
         <receiver android:name="com.dnasoftware.smartdnsproxy.BroadCastReceivers.WifiStatusChangeReceiver" >
             <intent-filter android:priority="100">
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="com.dnsoftware.smartdnsproxy.RETRY_UPDATE" />
             </intent-filter>
         </receiver>
 

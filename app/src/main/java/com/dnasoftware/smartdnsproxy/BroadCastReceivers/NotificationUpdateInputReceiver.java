@@ -86,6 +86,7 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
                 .setContentTitle(context.getString(R.string.updating_notification_title))
                 .setContentText(context.getString(R.string.updating_notification_body))
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setTicker(context.getString(R.string.updating_notification_body))
                 .setContentIntent(pIntent)
                 .setProgress(0, 0, true)
                 .build();
@@ -121,8 +122,7 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
         if(Status == 0){
             notification.setSmallIcon(android.R.drawable.ic_dialog_info);
         } else {
-            Intent retryIntent = new Intent("com.dnsoftware.smartdnsproxy.RETRY_UPDATE");
-            retryIntent.setClass(context, NotificationUpdateInputReceiver.class);
+            Intent retryIntent = new Intent(context, NotificationUpdateInputReceiver.class);
             retryIntent.setAction(currentIP);
             PendingIntent pIntentRetry = PendingIntent.getBroadcast(context, 0, retryIntent, 0);
 
