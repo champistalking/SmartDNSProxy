@@ -103,7 +103,6 @@ public class WifiStatusChangeReceiver extends BroadcastReceiver{
     }
 
 
-
     protected String getPreviousIP(Context context){
         final SharedPreferences pref = context.getSharedPreferences("DNSSmartProxy", Context.MODE_PRIVATE);
         return pref.getString("IP","0");

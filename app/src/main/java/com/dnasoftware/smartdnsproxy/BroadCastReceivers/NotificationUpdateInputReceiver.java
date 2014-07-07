@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
@@ -28,8 +27,6 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        cancelUpdateNotification(context);
-
         String currentIP = intent.getAction();
         if(currentIP.equals("NO")){ return; }
 
@@ -44,6 +41,13 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
             @SuppressLint("CommitPrefEdits")
             @Override
             public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        displayProgress(context);
+                    }
+                });
+
                 RestAdapter adapter = new RestAdapter.Builder()
                         .setEndpoint(API_URL)
                         .build();
@@ -71,39 +75,54 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
         thread.start();
     }
 
-    protected void displayResult(final Context context, final String message, int Status){
+    protected void displayProgress(final Context context){
         Intent intent = new Intent(context, NotificationUpdateInputReceiver.class);
         PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         Notification notification;
         notification = new NotificationCompat.Builder(context)
-                .setAutoCancel(true)
-                .setContentTitle("IP Update Result")
-                .setContentText(message)
-                .setTicker(message)
+                .setContentTitle("Smart DNS IP Update")
+                .setContentText("Updating... Please, wait")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentIntent(pIntent)
-                .setLights(Color.WHITE, 1, 0)
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                .setProgress(0, 0, true)
                 .build();
 
         notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(91345636, notification);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void displayResult(final Context context, final String message, int Status){
+        Intent intent = new Intent(context, NotificationUpdateInputReceiver.class);
+        PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+        NotificationCompat.Builder notification;
+        notification = new NotificationCompat.Builder(context)
+                .setAutoCancel(true)
+                .setContentTitle("IP Update Result")
+                .setContentText(message)
+                .setTicker(message)
+                .setProgress(0, 0, false)
+                .setContentIntent(pIntent)
+                .setLights(Color.WHITE, 1, 0)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+
         if(Status == 0){
-            notification.largeIcon = BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_dialog_info);
-            notification.icon = android.R.drawable.ic_dialog_info;
+            notification.setSmallIcon(android.R.drawable.ic_dialog_info);
         } else {
-            notification.largeIcon = BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_dialog_alert);
-            notification.icon = android.R.drawable.ic_dialog_alert;
+            notification.setSmallIcon(android.R.drawable.ic_dialog_alert);
         }
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(27087226, notification);
-    }
-
-    private void cancelUpdateNotification(Context ctx){
-        String  s = Context.NOTIFICATION_SERVICE;
-        NotificationManager mNM = (NotificationManager) ctx.getSystemService(s);
-        mNM.cancel(91345636);
+        notificationManager.notify(91345636, notification.build());
     }
 }
