@@ -29,18 +29,19 @@
         <receiver android:name=".BroadCastReceivers.WiFi.WifiStatusChangeReceiver" >
             <intent-filter android:priority="100">
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
             </intent-filter>
         </receiver>
 
         <receiver android:name=".BroadCastReceivers.Notifications.NotificationUpdateInputReceiver" />
 
-        <receiver android:name=".BroadCastReceivers.OnBoot.OnBootReceiver" android:enabled="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+        <!--<receiver android:name=".BroadCastReceivers.OnBoot.OnBootReceiver" android:enabled="true">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
 
-        <service android:name=".Services.PollService" android:enabled="true"/>
+        <service android:name=".Services.PollService"/>
     </application>
 
 </manifest>

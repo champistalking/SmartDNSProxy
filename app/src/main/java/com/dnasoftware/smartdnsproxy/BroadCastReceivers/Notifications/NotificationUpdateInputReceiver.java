@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
@@ -15,6 +14,10 @@ import android.support.v4.app.NotificationCompat;
 import com.dnasoftware.smartdnsproxy.BroadCastReceivers.WiFi.SmartDNSProxy;
 import com.dnasoftware.smartdnsproxy.BroadCastReceivers.WiFi.SmartDNSProxyAPIModel;
 import com.dnasoftware.smartdnsproxy.R;
+import com.dnasoftware.smartdnsproxy.Utils.AlarmManagerUtils;
+import com.dnasoftware.smartdnsproxy.Utils.SharedPrefsUtils;
+
+import java.util.Calendar;
 
 import retrofit.RestAdapter;
 
@@ -30,13 +33,20 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
 
     private Handler handler;
 
+    private SharedPrefsUtils spUtil;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         currentIP = intent.getAction();
-        if(currentIP.equals("NO")){ cancelUpdateNotification(context); return; }
+        spUtil = new SharedPrefsUtils(context);
+
+        if(currentIP.equals("NO")){
+            AlarmManagerUtils.cancelAlarm(context);
+            cancelUpdateNotification(context);
+            return;
+        }
 
         handler = new Handler();
-
         updateIP(context, currentIP);
     }
 
@@ -60,11 +70,8 @@ public class NotificationUpdateInputReceiver extends BroadcastReceiver {
                 final SmartDNSProxyAPIModel response = dsp.Update(ACCOUNT_ID);
 
                 if(response.getStatus() == 0){
-                    final SharedPreferences pref = context.getSharedPreferences("DNSSmartProxy", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putString("IP", IP);
-
-                    editor.apply();
+                    spUtil.saveIP(IP);
+                    AlarmManagerUtils.configureAlarm(context, Calendar.MINUTE, 15);
                 }
 
                 handler.post(new Runnable() {

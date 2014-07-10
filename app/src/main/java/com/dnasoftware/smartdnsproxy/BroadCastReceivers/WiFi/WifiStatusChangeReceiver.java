@@ -8,14 +8,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.dnasoftware.smartdnsproxy.BroadCastReceivers.Notifications.NotificationUpdateInputReceiver;
 import com.dnasoftware.smartdnsproxy.R;
+import com.dnasoftware.smartdnsproxy.Utils.AlarmManagerUtils;
 import com.dnasoftware.smartdnsproxy.Utils.IPUtils;
 import com.dnasoftware.smartdnsproxy.Utils.NetworkUtils;
+import com.dnasoftware.smartdnsproxy.Utils.SharedPrefsUtils;
+
+import java.util.Calendar;
 
 
 /**
@@ -29,39 +34,64 @@ public class WifiStatusChangeReceiver extends BroadcastReceiver{
     private String currentIP;
     private Handler handler;
 
+    private SharedPrefsUtils spUtil;
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        final Context ctx = context;
-        cancelUpdateNotification(context); //Cancel any previous notification
+        if(intent.getAction().equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)){
+            // EXTRA_SUPPLICANT_CONNECTED doesn't mean that the WiFi is completely connected but it
+            // does work when the wifi get's disconnected. We check connection with CONNECTIVITY_ACTION.
 
-        boolean isWiFi = NetworkUtils.isWiFiConnected(context);
+            boolean connected = intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false);
 
-        if(isWiFi){
-            handler = new Handler();
+            if(!connected){
+                //Log.e("WifiStatusChangeReceiver", "WiFi disconnected! Cancel alarm");
+                // Cancel the alarm (if needed) if WiFi connection goes off.
+                AlarmManagerUtils.cancelAlarm(context);
+            }
 
-            Thread th = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    String prevIP = getPreviousIP(ctx);
-                    currentIP = IPUtils.getCurrentIP();
+        } else if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION) ||
+                intent.getAction().equals("com.dnasoftware.smartdnsproxy.POLLSERVICE")){
 
-                    if(!prevIP.equals("0")){
-                        if(prevIP.equals(currentIP)){
-                            Log.e("com.dnasoftware.smartdnsproxy", "Previous IP (" + prevIP + ") and Current IP match, will not update since it's not required");
-                            return;
+            final Context ctx = context;
+            cancelUpdateNotification(context); //Cancel any previous notification
+
+            spUtil = new SharedPrefsUtils(context);
+
+            boolean isWiFi = NetworkUtils.isWiFiConnected(context);
+
+            if(isWiFi){
+                //Log.e("WifiStatusChangeReceiver", "WiFi connected!");
+                handler = new Handler();
+
+                Thread th = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String prevIP = spUtil.getSavedIP();
+                        currentIP = IPUtils.getCurrentIP();
+
+                        if(!prevIP.equals("0")){
+                            if(prevIP.equals(currentIP)){
+                                //Log.e("com.dnasoftware.smartdnsproxy", "Previous IP (" + prevIP + ") and Current IP match, will not update since it's not required");
+
+                                // If the current IP matches the previous IP it means that the user already wanted to
+                                // update it, so we enable the service to monitor for dynamic IP changes.
+                                AlarmManagerUtils.configureAlarm(ctx, Calendar.MINUTE, 15);
+                                return;
+                            }
                         }
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                askForUpdate(ctx);
+                            }
+                        });
                     }
+                });
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            askForUpdate(ctx);
-                        }
-                    });
-                }
-            });
-
-            th.start();
+                th.start();
+            }
         }
     }
 
